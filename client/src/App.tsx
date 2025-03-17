@@ -1,10 +1,10 @@
 import React from 'react';
-import UserManager from './controllers/UserManager';
+import ApplicantManager from './controllers/ApplicantManager';
 
 const App: React.FC = () => {
   return (
     <div>
-      <UserManager />
+      <ApplicantManager />
     </div>
   );
 };
