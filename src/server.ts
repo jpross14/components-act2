@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import User from './models/User';
+import { Request, Response } from 'express';
 
 const app = express();
 const port = 5000;
@@ -51,3 +52,36 @@ app.get('/api/users', async (req, res) => {
       res.status(500).json({ message: 'Error fetching users', error });
     }
   });
+
+// PUT: Update a user
+app.put('/api/users/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, age } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email, age },
+      { new: true } // Returns the updated document
+    );
+    if (!updatedUser) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error });
+  }
+});
+
+// DELETE: Remove a user
+app.delete('/api/users/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error });
+  }
+});

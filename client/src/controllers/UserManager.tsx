@@ -47,12 +47,17 @@ const UserManager: React.FC = () => {
 
   const deleteUser = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/users/${id}`, {
-        method: 'DELETE',
+      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method: "DELETE",
       });
-      setUsers(users.filter(user => user._id !== id));
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+  
+      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
 
@@ -63,23 +68,26 @@ const UserManager: React.FC = () => {
     setAge(user.age.toString());
   };
 
-  const updateUser = async () => {
-    if (!editingUserId) return;
-
+  const updateUser = async (id: string, updatedData: { name: string; email: string; age: number }) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${editingUserId}`, {
-        method: 'PUT',
+      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, age: parseInt(age) }),
+        body: JSON.stringify(updatedData),
       });
-
+  
+      if (!response.ok) {
+        throw new Error("Failed to update user");
+      }
+  
       const updatedUser = await response.json();
-      setUsers(users.map(user => (user._id === editingUserId ? updatedUser : user)));
-      resetForm();
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => (user._id === id ? updatedUser : user))
+      );
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error("Error updating user:", error);
     }
   };
 
@@ -104,7 +112,7 @@ const UserManager: React.FC = () => {
       <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="Age" />
       {editingUserId ? (
         <>
-          <button onClick={updateUser}>Update User</button>
+          <button onClick={() => updateUser(editingUserId!, { name, email, age: parseInt(age) })}>Update User</button>
           <button onClick={resetForm}>Cancel</button>
         </>
       ) : (
