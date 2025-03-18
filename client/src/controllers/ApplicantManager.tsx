@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './ApplicantManager.css';
 
 interface Applicant {
   _id: string;
